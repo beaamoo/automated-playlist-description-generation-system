@@ -5,32 +5,18 @@ import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 
 class PlyDataset(Dataset):
-    """
-    Dataset class for loading and preprocessing playlist data.
-
-    Attributes:
-        split_path (str): Base directory for data splits.
-        dataset_type (str): Type of dataset (e.g., 'mel_spectrogram').
-        tokenizer (str): Type of tokenizer to use ('bpe' or 'space').
-        context_length (int): Maximum sequence length.
-        split (str): Data split ('TRAIN', 'VALID', 'TEST').
-        title_tokenizer: Tokenizer for playlist titles.
-        title_vocab: Vocabulary for title tokens.
-        song_vocab: Vocabulary for song tokens.
-        shuffle (bool): Whether to shuffle songs within playlists for augmentation.
-    """
-    def __init__(self, split_path, dataset_type, tokenizer, context_length, split, 
-                 title_tokenizer, title_vocab, song_vocab, shuffle):
+    def __init__(self, split_path, dataset_type, tokenizer, context_length, split, title_tokenizer, title_vocab, song_vocab, track_vocab, shuffle):
+        # Initialization code here
         self.split_path = split_path
         self.dataset_type = dataset_type
         self.tokenizer = tokenizer
         self.context_length = context_length
-        self.split = split.upper()
+        self.split = split
         self.title_tokenizer = title_tokenizer
-        self.title_vocab = title_vocab.token_to_idx
-        self.song_vocab = song_vocab.token_to_idx
+        self.title_vocab = title_vocab
+        self.song_vocab = song_vocab
+        self.track_vocab = track_vocab  # Use track_vocab as needed within your dataset
         self.shuffle = shuffle
-        self.data = self.load_data()
 
     def load_data(self):
         """

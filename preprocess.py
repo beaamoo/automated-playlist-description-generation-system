@@ -10,6 +10,7 @@ import torch
 import pickle
 from src.utils import Vocab
 from collections import Counter
+from tokenizers import Tokenizer, SentencePieceBPETokenizer
 
 # Function to safely create a directory
 def ensure_dir(directory):
@@ -94,6 +95,33 @@ def data_split(filtered_dir, split_dir, ratio=[0.8, 0.1, 0.1]):
         # merged_dataset.to_csv(os.path.join(split_dir, name+'.csv'), index=False)
         logger.info("Filtered {} Dataset Saved: total {} playlists.".format(name.upper(), len(merged_dataset)))
 
+def byte_level_BPE_train(train_dir, val_dir, out_dir, out_name, limit_alphabet=1000, vocab_size=10000):
+    # Ensure the output directory exists
+    ensure_dir(out_dir)
+    
+    # Load Dataset
+    train_dict = torch.load(train_dir)
+    train_df = pd.DataFrame.from_dict(train_dict)
+    val_dict = torch.load(val_dir)
+    val_df = pd.DataFrame.from_dict(val_dict)
+    df = pd.concat([train_df, val_df], axis=0)
+
+    # Initialize an empty tokenizer
+    tokenizer = SentencePieceBPETokenizer()
+
+    # Train the tokenizer
+    tokenizer.train_from_iterator(
+        df['nrm_plylst_title'].tolist(),
+        vocab_size=vocab_size,
+        min_frequency=2,
+        limit_alphabet=limit_alphabet,
+        show_progress=True,
+        special_tokens=["<pad>", "<sos>", "<eos>", "<unk>"]
+    )
+
+    # Save the tokenizer model
+    tokenizer.save_model(directory=out_dir, prefix=out_name)
+    logger.info("BPE model trained & saved.")
 
 def build_dictionary(dataset_dir, track_out_dir, song_out_dir, out_name):
     ensure_dir(track_out_dir)
@@ -126,26 +154,34 @@ if __name__ == '__main__':
     logging.root.setLevel(level=logging.INFO)
     logger.info("running %s" % ' '.join(sys.argv))
 
-    # Adjust the directory paths as necessary and ensure they exist before proceeding
+    # Directory setup
     dataset_dir = "./spotify_million_playlist_dataset/data"
     filtered_dir = "./dataset/"
-    split_dir = "./dataset/split/"  # For example, to save train/test/validation splits
-    track_out_dir = './dataset/tokenizer/title_split'
-    song_out_dir = './dataset/tokenizer/track'
+    split_dir = "./dataset/split/"
+    tokenizer_dir = './dataset/tokenizer'
+    track_out_dir = tokenizer_dir + '/title_split'
+    song_out_dir = tokenizer_dir + '/track'
 
-    
     # Ensure directories are created
     ensure_dir(dataset_dir)
     ensure_dir(filtered_dir)
     ensure_dir(split_dir)
+    ensure_dir(tokenizer_dir)
     ensure_dir(track_out_dir)
     ensure_dir(song_out_dir)
 
     logger.info("----- LOAD AND FILTER MPD DATASET -----")
     load_and_filter(dataset_dir, filtered_dir, min_token_len=3, min_title_len=3, min_tracklist_len=10)
 
+    # Adjust the paths according to your data structure
+    train_dir = os.path.join(split_dir, 'train.pt')
+    val_dir = os.path.join(split_dir, 'val.pt')
+
+    logger.info("----- TRAIN BYTE-LEVEL BPE TOKENIZER -----")
+    byte_level_BPE_train(train_dir, val_dir, tokenizer_dir, 'mpd_bpe', limit_alphabet=1000, vocab_size=10000)
+
     logger.info("----- SPLIT DATASETS (TR/VA/TE) -----")
-    data_split(filtered_dir+'mpd_filtered.pt', split_dir, ratio=[0.8, 0.1, 0.1])
+    data_split(os.path.join(filtered_dir, 'mpd_filtered.pt'), split_dir, ratio=[0.8, 0.1, 0.1])
     
     logger.info("----- BUILD TRACK DICTIONARY -----")
-    build_dictionary(filtered_dir+'mpd_filtered.pt', track_out_dir, song_out_dir, 'mpd')
+    build_dictionary(os.path.join(filtered_dir, 'mpd_filtered.pt'), track_out_dir, song_out_dir, 'mpd')

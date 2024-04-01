@@ -7,34 +7,36 @@ from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
 from ..data import PlyDataset
 
-
 class PlyPipeline(LightningDataModule):
-    def __init__(self, split_path, dataset_type, tokenzier, context_length, title_tokenizer, title_vocab, song_vocab, shuffle, batch_size, num_workers) -> None:
+    def __init__(self, split_path, dataset_type, tokenizer, context_length, title_tokenizer, title_vocab, song_vocab, track_vocab, shuffle, batch_size, num_workers) -> None:
         super(PlyPipeline, self).__init__()
         self.dataset_builder = PlyDataset
         self.split_path = split_path
         self.dataset_type = dataset_type
-        self.tokenzier = tokenzier
+        self.tokenizer = tokenizer
         self.context_length = context_length
         self.title_tokenizer = title_tokenizer
         self.title_vocab = title_vocab
         self.song_vocab = song_vocab
+        self.track_vocab = track_vocab  # Added track_vocab
         self.shuffle = shuffle
         self.batch_size = batch_size
         self.num_workers = num_workers
 
     def setup(self, stage: Optional[str] = None):
+        # Updated to include self.track_vocab in the dataset setup calls
         if stage == "fit" or stage is None:
             self.train_dataset = PlyPipeline.get_dataset(
                 self.dataset_builder,
                 self.split_path,
                 self.dataset_type,
-                self.tokenzier,
+                self.tokenizer,
                 self.context_length,
                 "TRAIN",
                 self.title_tokenizer,
                 self.title_vocab,
                 self.song_vocab,
+                self.track_vocab,  # Added track_vocab
                 self.shuffle
             )
 
@@ -42,12 +44,13 @@ class PlyPipeline(LightningDataModule):
                 self.dataset_builder,
                 self.split_path,
                 self.dataset_type,
-                self.tokenzier,
+                self.tokenizer,
                 self.context_length,
                 "VALID",
                 self.title_tokenizer,
                 self.title_vocab,
                 self.song_vocab,
+                self.track_vocab,  # Added track_vocab
                 self.shuffle
             )
 
@@ -56,12 +59,13 @@ class PlyPipeline(LightningDataModule):
                 self.dataset_builder,
                 self.split_path,
                 self.dataset_type,
-                self.tokenzier,
+                self.tokenizer,
                 self.context_length,
                 "TEST",
                 self.title_tokenizer,
                 self.title_vocab,
                 self.song_vocab,
+                self.track_vocab,  # Added track_vocab
                 False,
             )
 
@@ -93,8 +97,8 @@ class PlyPipeline(LightningDataModule):
         )
 
     @classmethod
-    def get_dataset(cls, dataset_builder: Callable, split_path, dataset_type, tokenzier, context_length, split, title_tokenizer, title_vocab, song_vocab, shuffle) -> Dataset:
-        dataset = dataset_builder(split_path, dataset_type, tokenzier, context_length, split, title_tokenizer, title_vocab, song_vocab, shuffle)
+    def get_dataset(cls, dataset_builder: Callable, split_path, dataset_type, tokenizer, context_length, split, title_tokenizer, title_vocab, song_vocab, track_vocab, shuffle) -> Dataset:
+        dataset = dataset_builder(split_path, dataset_type, tokenizer, context_length, split, title_tokenizer, title_vocab, song_vocab, track_vocab, shuffle)
         return dataset
 
     @classmethod
