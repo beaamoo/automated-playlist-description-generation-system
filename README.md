@@ -5,39 +5,6 @@ The Automated Playlist Description Generation (APDG) system is a deep learning m
 ## Dataset
 The model utilizes the Spotify Million Playlist Dataset (MPD), which contains a vast collection of playlists including track IDs and corresponding titles. Download the data files from [spotify-million-playlist](https://www.aicrowd.com/challenges/spotify-million-playlist-dataset-challenge/dataset_files).
 
-## File Structure
-```
-APDG/
-│
-├── src/                        # Source files for the APDG system
-│   ├── data/                   # Data handling scripts
-│   │   ├── __init__.py         # Makes directories Python packages
-│   │   └── spotify_api.py      # Script to fetch data from the Spotify API
-│   │
-│   ├── model/                  # Transformer model and utilities
-│   │   ├── __init__.py
-│   │   ├── transformer.py      # Transformer model implementation
-│   │   └── utils.py            # Utility functions, e.g., tokenization
-│   │
-│   └── main.py                 # Main script to run the APDG system
-│
-├── notebooks/                  # Jupyter notebooks for exploration
-│   ├── model_exploration.ipynb # Explore model architecture, training, etc.
-│   └── api_data_fetching.ipynb # Notebook for exploring Spotify API data
-│
-├── tests/                      # Unit and integration tests
-│   ├── __init__.py
-│   ├── test_spotify_api.py     # Tests for Spotify API data fetching
-│   └── test_transformer.py     # Tests for transformer model functionality
-│
-├── requirements.txt            # Project dependencies
-├── setup.py                    # Setup script for the APDG package
-└── README.md                   # Project overview and setup instructions
-```
-
-
-### Data Preparation
-Before training the model, the dataset is preprocessed and split into training, validation, and test sets. Detailed instructions for data preparation are provided below.
 
 ## Environment Setup
 
@@ -51,14 +18,13 @@ Install the required Python packages:
 pip install -r requirements.txt
 ```
 
-
 ## Training the Model
 
 ### Preprocessing and Dataset Splitting
 Run the preprocessing script to prepare and split the dataset:
 
 ```bash
-python preprocessing.py
+python preprocess.py
 ```
 
 ### Training Options
