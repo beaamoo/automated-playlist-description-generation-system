@@ -1,7 +1,6 @@
 import os
 import sys
 from argparse import ArgumentParser, Namespace
-from src.model.rnn import RNN_Attn
 from src.model.transformer import Transformer
 from src.utils import Vocab
 
@@ -21,11 +20,10 @@ from tqdm import tqdm
 from torch.autograd import Variable
 
 class _tokenizer():
-    def __init__(self, dataset_type):
-        self.tokenizer_dir = './dataset/tokenizer/title_bpe'
-        self.dataset_type = dataset_type
-        self.model = SentencePieceBPETokenizer(os.path.join(self.tokenizer_dir, "{}-vocab.json".format(self.dataset_type)),\
-                                            os.path.join(self.tokenizer_dir, "{}-merges.txt".format(self.dataset_type)))
+    def __init__(self):
+        self.tokenizer_dir = './dataset/tokenizer/description_bpe'
+        self.model = SentencePieceBPETokenizer(os.path.join(self.tokenizer_dir, "mpd-vocab.json"),\
+                                            os.path.join(self.tokenizer_dir, "mpd-merges.txt"))
         
         self.encoder = self.model.get_vocab()
     def encode(self, target_str, is_pretokenized=False, add_special_tokens=True):
@@ -34,9 +32,9 @@ class _tokenizer():
     def decode(self, target_ids, skip_special_tokens=True):
         return self.model.decode(target_ids, skip_special_tokens=True)
 
-def title_tokenize(text, context_length, title_vocab):
+def description_tokenize(text, context_length, description_vocab):
     token = ["<sos>"] + text.split() + ["<eos>"]
-    all_tokens = [title_vocab.token_to_idx[i] for i in token]
+    all_tokens = [description_vocab.token_to_idx[i] for i in token]
     text = torch.zeros(context_length, dtype=torch.long)
     if len(all_tokens) < context_length:
         text[:len(all_tokens)] = torch.tensor(all_tokens)
@@ -56,52 +54,34 @@ def song_tokenize(song, dataset_type, context_length, song_vocab, shuffle=False)
         song_seq[-1] = all_tokens[-1]
     return song_seq
 
-def decode_song(dataset_type, song_seq):
+def decode_song(song_seq):
     special_tokens = ['<pad>', '<sos>', '<eos>', '<unk>']
     decoded_song_list = []
-    if dataset_type == 'melon':
-        gen_dict = json.load(open("./dataset/source/melon/genre_gn_all.json", 'r', encoding='utf8'))
-        song_meta_df = pd.read_json("./dataset/source/melon/song_meta.json")
-        for sid in song_seq:
-            #song_idx = song_vocab.idx_to_token[sid]
-            song_idx = sid
-            if song_idx not in special_tokens:
-                song_meta = song_meta_df.loc[song_idx]
-                track = song_meta['song_name']
-                artist = song_meta['artist_name_basket']
-                tag = song_meta['song_gn_dtl_gnr_basket']
-                genre = [gen_dict[gen_id] for gen_id in tag]
-                decoded_song_list.append({'title': track, 'artist': artist, 'genre': genre})
-                #print(track, artist, genre)
-                #print("=====")
-    elif dataset_type == 'mpd':
-        song_dict={}
-        data_dir = "./dataset/source/mpd/data"
-        fname = os.listdir(data_dir)
-        for file in tqdm(fname):
-            if file.startswith("mpd.slice.") and file.endswith(".json"):
-                one_playlist = json.load(open(os.path.join(data_dir,file),'r'))
-                for ply in one_playlist['playlists']:
-                    if ply['tracks']==[] or ply['name']=='':
-                        continue
-                    for track in ply['tracks']:
-                        track_dict = {}
-                        track_dict['title'] = track['track_name']
-                        track_dict['artist'] = track['artist_name']
-                        song_dict[track['track_uri']] = track_dict
-                    
-        for sid in song_seq:
-            song_idx = song_vocab.idx_to_token[sid]
-            if song_idx not in special_tokens:
-                decoded_song_list.append(song_dict[song_idx])
-                #print(song_dict[song_idx])
-                #print("=====")
+    song_dict={}
+    data_dir = "./spotify_million_playlist_dataset/mpd/data"
+    fname = os.listdir(data_dir)
+    for file in tqdm(fname):
+        if file.startswith("mpd.slice.") and file.endswith(".json"):
+            one_playlist = json.load(open(os.path.join(data_dir,file),'r'))
+            for ply in one_playlist['playlists']:
+                if ply['tracks']==[] or ply['name']=='':
+                    continue
+                for track in ply['tracks']:
+                    track_dict = {}
+                    track_dict['description'] = track['track_name']
+                    track_dict['artist'] = track['artist_name']
+                    song_dict[track['track_uri']] = track_dict
+                
+    for sid in song_seq:
+        song_idx = song_vocab.idx_to_token[sid]
+        if song_idx not in special_tokens:
+            decoded_song_list.append(song_dict[song_idx])
     return decoded_song_list
 
 
-def _generation(dataset_type, model_type, songs, model, context_length, song_vocab, title_vocab, device):
+def _generation(dataset_type, model_type, songs, model, context_length, song_vocab, description_vocab, device):
     song_seq = song_tokenize(songs, dataset_type, context_length, song_vocab)
-    sos_token = title_tokenize('', context_length, title_vocab)
+    sos_token = description_tokenize('', context_length, description_vocab)
     song_seq = song_seq.to(device)
     sos_token = sos_token.to(device)
     if model_type == 'rnn':
@@ -151,36 +131,25 @@ def _generation(dataset_type, model_type, songs, model, context_length, song_voc
                 break
     
     if model_type == 'rnn':
-        generative_title = [title_vocab.idx_to_token[i] for i in outputs]
-        return generative_title, attentions[:len(generative_title)-1]
+        generative_description = [description_vocab.idx_to_token[i] for i in outputs]
+        return generative_description, attentions[:len(generative_description)-1]
     elif model_type == 'transfomer':
-        generative_title = [title_vocab.idx_to_token[i] for i in trg_indexes[1:]]
-        return generative_title, attention.squeeze(0)[:,1:len(generative_title)]
+        generative_description = [description_vocab.idx_to_token[i] for i in trg_indexes[1:]]
+        return generative_description, attention.squeeze(0)[:,1:len(generative_description)]
 
 def main(args):
-    save_path = f"exp/{args.dataset_type}/{args.model}/{args.tokenzier}/s:{args.shuffle}_epos:{args.e_pos}"
-    title_tokenizer = _tokenizer(dataset_type = args.dataset_type)
+    save_path = f"transformer_pt/{args.tokenzier}/s:{args.shuffle}_epos:{args.e_pos}"
+    description_tokenizer = _tokenizer()
     song_vocab = pickle.load(open(os.path.join("./dataset/tokenizer/track", args.dataset_type + "_vocab.pkl"), mode="rb"))
-    title_vocab = pickle.load(open(os.path.join("./dataset/tokenizer/title_split", args.dataset_type + "_vocab.pkl"), mode="rb"))
+    description_vocab = pickle.load(open(os.path.join("./dataset/tokenizer/description_split", args.dataset_type + "_vocab.pkl"), mode="rb"))
     if args.tokenzier == "white":
         input_size = len(song_vocab) 
-        output_size= len(title_vocab)
+        output_size= len(description_vocab)
     else:
         raise ValueError("Current model only support white space tokenizer")
 
-    if args.model == "rnn":
-        model = RNN_Attn(
-                    input_size = input_size, 
-                    output_size= output_size,
-                    embed_size= args.embed_size,
-                    hidden_size= args.hidden_size,
-                    e_layers= args.e_layers, 
-                    d_layers= args.d_layers, 
-                    dropout= args.dropout, 
-                    teacher_forcing_ratio = args.teacher_forcing_ratio
-                    )
-    elif args.model == "transfomer":
-        model = Transfomer(
+    if args.model == "transfomer":
+        model = Transformer(
             input_size = input_size, 
             output_size= output_size,
             hidden_size= args.embed_size,
@@ -203,17 +172,16 @@ def main(args):
 
     fl = torch.load(os.path.join(args.split_path, args.dataset_type, "test.pt"))
     inference = {}
+    counter = 0  # Add a counter
     for item in tqdm(fl):
-        gen_t, _ = _generation(args.dataset_type, args.model, item['songs'], model, args.context_length, song_vocab, title_vocab, args.gpus)
+        gen_t, _ = _generation(args.dataset_type, args.model, item['songs'], model, args.context_length, song_vocab, description_vocab, args.gpus)
         inference[item['pid']] = {
-            "ground_truth": item['nrm_plylst_title'],
+            "ground_truth": item['nrm_plylst_description'],
             "prediction": " ".join(gen_t)
         }
-    
-    # songs = [song_vocab.idx_to_token[i] for i in songs]
-    # decoded_songs = decode_song(dataset_type, songs)
-    # decoded_songs = decoded_songs[:context_length] if len(decoded_songs) > context_length else decoded_songs
-    # decoded_songs_list = list(map(lambda x: x['title']+' by '+' '.join(x['artist']), decoded_songs))
+        counter += 1  # Increment the counter
+        if counter >= 5:  # Break the loop if counter is 5 or more
+            break
 
     with open(os.path.join(save_path, "inference.json"), mode="w", encoding='utf-8') as io:
         json.dump(inference, io, ensure_ascii=False, indent=4)
@@ -224,7 +192,6 @@ if __name__ == '__main__':
     parser.add_argument("--tid", default="0", type=str)
     parser.add_argument("--model", default="transfomer", type=str)
     parser.add_argument("--tokenzier", default="white", type=str)
-    parser.add_argument("--dataset_type", default="melon", type=str)    
     parser.add_argument("--context_length", default=64, type=int)
     parser.add_argument("--shuffle", default=True, type=bool)
     # model
@@ -244,4 +211,5 @@ if __name__ == '__main__':
     parser.add_argument("--gpus", default=0, type=int)
 
     args = parser.parse_args()
+    args.dataset_type = "mpd"  # Hardcode the dataset type to 'mpd'
     main(args)

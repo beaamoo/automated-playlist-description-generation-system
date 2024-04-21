@@ -11,3 +11,4 @@ spotify_million_playlist_dataset/
 __pycache__/
 *.ckpt
 .DS_Store
+nlp-venv/

@@ -1,9 +1,7 @@
-from typing import List, Dict
-from typing import Union
+from typing import List, Callable, Union, Dict
 
 class Vocab:
-    """Vocab class that maps tokens to indices and vice versa. It supports
-    special tokens and user-defined mappings."""
+    """Vocab class"""
     def __init__(
         self,
         list_of_tokens: List[str] = None,

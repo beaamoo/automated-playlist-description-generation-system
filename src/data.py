@@ -1,88 +1,82 @@
 import random
-import os
-import torch
+import pickle
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
+import os
+import json
+import numpy as np
+import pandas as pd
+import torch
 
-class PlyDataset(Dataset):
-    def __init__(self, split_path, dataset_type, tokenizer, context_length, split, title_tokenizer, title_vocab, song_vocab, track_vocab, shuffle):
-        # Initialization code here
+class Ply_Dataset(Dataset):
+    def __init__(self, split_path, dataset_type, tokenzier, context_length, split, description_tokenizer, description_vocab, song_vocab, shuffle):
         self.split_path = split_path
         self.dataset_type = dataset_type
-        self.tokenizer = tokenizer
+        self.tokenzier = tokenzier
         self.context_length = context_length
         self.split = split
-        self.title_tokenizer = title_tokenizer
-        self.title_vocab = title_vocab
-        self.song_vocab = song_vocab
-        self.track_vocab = track_vocab  # Use track_vocab as needed within your dataset
+        self.description_tokenizer = description_tokenizer
+        self.description_vocab = description_vocab.token_to_idx
+        self.song_vocab = song_vocab.token_to_idx
         self.shuffle = shuffle
-
-    def load_data(self):
-        """
-        Loads and optionally augments the data based on the split and shuffle flag.
-        """
-        data_path = os.path.join(self.split_path, self.dataset_type, f"{self.split.lower()}.pt")
-        data = torch.load(data_path)
-
-        if self.split == "TRAIN" and self.shuffle:
-            augmented_data = self.augment_data(data)
-            random.shuffle(augmented_data)
-            return augmented_data
-
-        return data
-
-    def augment_data(self, data):
-        """
-        Doubles the dataset size by creating a shuffled version of each playlist.
-        """
-        augmented_data = []
-        for instance in data:
-            shuffled_instance = instance.copy()
-            random.shuffle(shuffled_instance['songs'])
-            augmented_data.append(instance)
-            augmented_data.append(shuffled_instance)
-        return augmented_data
+        self.get_fl()
+    def get_fl(self):
+        if self.split == "TRAIN":
+            if self.shuffle:
+                origin = torch.load(os.path.join(self.split_path, self.dataset_type, "train.pt"))
+                shuffle_aug = []
+                for instance in origin:
+                    shuffle_instance = instance.copy()
+                    song_list = list(shuffle_instance['songs'])
+                    random.shuffle(song_list)
+                    shuffle_instance['songs'] = song_list
+                    shuffle_aug.append(shuffle_instance)
+                aug_data = origin + shuffle_aug
+                random.shuffle(aug_data)
+                self.fl = aug_data
+            else:
+                self.fl = torch.load(os.path.join(self.split_path, self.dataset_type, "train.pt"))
+        elif self.split == "VALID":
+            self.fl = torch.load(os.path.join(self.split_path, self.dataset_type, "val.pt"))
+        elif self.split == "TEST":
+            self.fl = torch.load(os.path.join(self.split_path, self.dataset_type, "test.pt"))
+        else:
+            print("Split should be one of [TRAIN, VALID, TEST]")
 
     def __getitem__(self, index):
-        """
-        Returns the tokenized song sequence and title sequence for the given index.
-        """
-        instance = self.data[index]
-        song_seq = self._tokenize_songs(instance['songs'])
-        title_seq = self._tokenize_title(instance['nrm_plylst_title'])
-        return song_seq, title_seq
+        instance = self.fl[index]
+        pid = instance['pid']
+        plylst_description = instance['nrm_plylst_description']
+        playlist_song = instance['songs']
+        song_seq = self._song_tokenize(playlist_song, self.dataset_type,  context_length=self.context_length)
+        token_seq = self._description_tokenize(plylst_description, context_length=self.context_length, tokenzier=self.tokenzier)
+        return song_seq, token_seq
 
-    def _tokenize_title(self, text):
-        """
-        Tokenizes the playlist title based on the specified tokenizer.
-        """
-        if self.tokenizer == "bpe":
-            tokens = [1] + self.title_tokenizer.encode(text) + [2]
+    def _description_tokenize(self, text, context_length, tokenzier):
+        if tokenzier == "bpe":
+            token = self.description_tokenizer.encode(text) 
+            all_tokens = [1] + token + [2]
         else:
-            tokens = [self.title_vocab.get(token, self.title_vocab["<unk>"]) 
-                      for token in ["<sos>"] + text.split() + ["<eos>"]]
-        return self._pad_sequence(tokens)
-
-    def _tokenize_songs(self, songs):
-        """
-        Tokenizes the song sequence.
-        """
-        tokens = [self.song_vocab.get(song, self.song_vocab["<unk>"]) 
-                  for song in ["<sos>"] + songs + ["<eos>"]]
-        return self._pad_sequence(tokens)
-
-    def _pad_sequence(self, tokens):
-        """
-        Pads or truncates the token sequence to the specified context length.
-        """
-        padded_seq = torch.zeros(self.context_length, dtype=torch.long)
-        effective_length = min(len(tokens), self.context_length)
-        padded_seq[:effective_length] = torch.tensor(tokens[:effective_length])
-        return padded_seq
-
+            token = ["<sos>"] + text.split() + ["<eos>"]
+            all_tokens = [self.description_vocab[i] for i in token]
+        text = torch.zeros(context_length, dtype=torch.long)
+        if len(all_tokens) < context_length:
+            text[:len(all_tokens)] = torch.tensor(all_tokens)
+        else:
+            text[:context_length-1] = torch.tensor(all_tokens[:context_length-1])
+            text[-1] = all_tokens[-1]
+        return text
+    
+    def _song_tokenize(self, song, dataset_type, context_length):
+        song_token = ["<sos>"] + song + ["<eos>"]
+        all_tokens = [self.song_vocab[i] for i in song_token]
+        song_seq = torch.zeros(context_length, dtype=torch.long)
+        if len(all_tokens) < context_length:
+            song_seq[:len(all_tokens)] = torch.tensor(all_tokens)
+        else:
+            song_seq[:context_length-1] = torch.tensor(all_tokens[:context_length-1])
+            song_seq[-1] = all_tokens[-1]
+        return song_seq
+    
     def __len__(self):
-        """
-        Returns the total number of items in the dataset.
-        """
-        return len(self.data)
+        return len(self.fl)

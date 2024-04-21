@@ -1,0 +1,23 @@
+{
+    "549056": {
+        "ground_truth": "that good summer vibe feeling &lt;3",
+        "prediction": "vibe - summer feeling <eos>"
+    },
+    "549063": {
+        "ground_truth": "who needs a heater when you've got the bass male voice?",
+        "prediction": "a collection of warm bass voices<eos>"
+    },
+    "549103": {
+        "ground_truth": "basically black feamles song in the 2010-2000",
+        "prediction": "millenial girl power anthems <eos>"
+    },
+    "549196": {
+        "ground_truth": "hi these were my favourite songs",
+        "prediction": "take me back to summer <eos>"
+    },
+    "549202": {
+        "ground_truth": "a playlist that will for sure make you sad and nostalgic once you go back to school",
+        "prediction": "nostalgic summer vibes <eos>"
+    }
+
+}
