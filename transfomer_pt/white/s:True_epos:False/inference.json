@@ -18,6 +18,185 @@
     "549202": {
         "ground_truth": "a playlist that will for sure make you sad and nostalgic once you go back to school",
         "prediction": "nostalgic summer vibes <eos>"
+    },
+    "549313": {
+        "ground_truth": "creds to cody for these song suggestions",
+        "prediction": "credit to cody for these curated tunes <eos>"
+    },
+    "549319": {
+        "ground_truth": "texas girl gotta have her country playlist",
+        "prediction": "essential country tunes for the texas soul <eos>"
+    },
+    "549450": {
+        "ground_truth": "playlist updated everyday mon-fri",
+        "prediction": "daily playlist updates, monday to friday <eos>"
+    },
+    "549473": {
+        "ground_truth": "the title says it all",
+        "prediction": "let the title speak for itself <eos>"
+        },
+    "549642": {
+        "ground_truth": "drake take care album hours",
+        "prediction": "immersed in drake's 'take care' album <eos>"
+    },
+    "549749": {
+        "ground_truth": "cause jesus is so good",
+        "prediction": "praise and worship tunes <eos>"
+    },
+    "549798": {
+        "ground_truth": "i swear there isn&#x27;t explicit language",
+        "prediction": "clean and family-friendly tracks <eos>"
+    },
+    "549915": {
+        "ground_truth": "use earphones for guaranteed eargasm within minutes!!",
+        "prediction": "headphones recommended for an auditory treat! <eos>"
+    },
+    "613003": {
+        "ground_truth": "a.k.a. benz is to me just a car. kung-fu kenny to doom.",
+        "prediction": "a musical journey from car rides to profound reflections <eos>"
+    },
+    "613017": {
+        "ground_truth": "a bunch of songs i&#x27;ve heard throughout my life that i like and can sing along to. these songs might have nothing in common but they belong together in this playlist.",
+        "prediction": "nostalgic sing-alongs from a lifetime of music <eos>"
+    },
+    "613086": {
+        "ground_truth": "this is a compilation of songs that morgan and i like to sing in the car, as well as some that i hope she&#x27;ll like. here&#x27;s hoping that this list continues to grow. i love you, morgan. :)",
+        "prediction": "car karaoke favorites dedicated to Morgan <eos>"
+    },
+    "613167": {
+        "ground_truth": "the best jams from the biebs...",
+        "prediction": "ultimate hits from Justin Bieber <eos>"
+    },
+    "613194": {
+        "ground_truth": "smooth silky sounds of jazz.",
+        "prediction": "velvety smooth jazz vibes <eos>"
+    },
+    "613210": {
+        "ground_truth": "my ultimate favs of all time",
+        "prediction": "timeless favorites from my playlist <eos>"
+    },
+    "613285": {
+        "ground_truth": "when you&#x27;re feeling down to clown",
+        "prediction": "ready to clown around tunes <eos>"
+    },
+    "613296": {
+        "ground_truth": "what i listened to on the way to buffalo, while drawing, laying in bed, and on the beach in avalon and the chesapeake bay.",
+        "prediction": "soundtrack to various moments, from travels to creative sessions <eos>"
+    },
+    "613318": {
+        "ground_truth": "this that fire. take it or leave it.",
+        "prediction": "undeniable fire, accept or move on <eos>"
+    },
+    "613331": {
+        "ground_truth": "electric ladies, will you sleep? or will you preach?",
+        "prediction": "empowering tunes for electric ladies <eos>"
+    },
+    "613801": {
+        "ground_truth": "almost 10 hours of my favorite songs",
+        "prediction": "nearly 10 hours of personal favorites <eos>"
+    },
+    "613892": {
+        "ground_truth": "sunshine, long drives, sticker hunts, new beginnings",
+        "prediction": "soundtrack for sunny adventures and fresh starts <eos>"
+    },
+    "115055": {
+        "ground_truth": "boys and girls of every age, wouldn&#x27;t you like to see something strange?",
+        "prediction": "a playlist for the curious souls <eos>"
+    },
+    "115057": {
+        "ground_truth": "vibes for you to chill to",
+        "prediction": "chill vibes for relaxation <eos>"
+    },
+    "115210": {
+        "ground_truth": "songs archived from <a href=\"https://open.spotify.com/user/hayeonk5/playlist/2jfivlpjfs4nsdqautibwq\">rappin&#x27;</a> - a new hiphop and r&amp;b playlist.",
+        "prediction": "hip-hop and R&amp;B archive <eos>"
+    },
+    "115229": {
+        "ground_truth": "walkup songs and opposing team trolling music",
+        "prediction": "pump-up tunes and opponent trolling tracks <eos>"
+    },
+    "115321": {
+        "ground_truth": "soothing and up beat rhythms for that perfect summer chill sesh!",
+        "prediction": "upbeat summer rhythms for chill sessions <eos>"
+    },
+    "115418": {
+        "ground_truth": "all of my favorite songs at the moment",
+        "prediction": "current favorites compilation <eos>"
+    },
+    "115528": {
+        "ground_truth": "me encanta el desmadre",
+        "prediction": "wild and fun tunes <eos>"
+    },
+    "115573": {
+        "ground_truth": "workout songs for that intense cardio, lift or pump",
+        "prediction": "energizing workout beats <eos>"
+    },
+    "115667": {
+        "ground_truth": "top hip hop bangers",
+        "prediction": "hottest hip-hop hits <eos>"
+    },
+    "115681": {
+        "ground_truth": "chill electronic-ish music. great for playing in the background while you are working or if you just want to chill.",
+        "prediction": "electronic tunes for background vibes <eos>"
+    },
+    "115740": {
+        "ground_truth": "songs about knowing that things will be okay when life knocks you down and things get hard. the flame inside of you still burns through the dark.",
+        "prediction": "uplifting tunes for tough times <eos>"
+    },
+    "115826": {
+        "ground_truth": "my favorite pg songs ;)",
+        "prediction": "my favorite clean songs <eos>)"
+    },
+    "115827": {
+        "ground_truth": "super chill mindless music",
+        "prediction": "relaxing and mindless tunes <eos>"
+    },
+    "778085": {
+        "ground_truth": "death dealers mc 4 playlist",
+        "prediction": "death dealers motorcycle club playlist <eos>"
+    },
+    "778174": {
+        "ground_truth": "study music or somethin",
+        "prediction": "background tunes for studying <eos>"
+    },
+    "778224": {
+        "ground_truth": "not just for thursdays",
+        "prediction": "playlist for any day of the week <eos>"
+    },
+    "778280": {
+        "ground_truth": "some rap, hip hop. and rnb songs i&#x27;m liking atm.",
+        "prediction": "current favorites in rap, hip hop, and R&amp;B <eos>"
+    },
+    "778393": {
+        "ground_truth": "songs i think u would like",
+        "prediction": "tracks I think you'll enjoy <eos>"
+    },
+    "778416": {
+        "ground_truth": "music i enjoy at the moment :)",
+        "prediction": "current favorite tunes <eos>"
+    },
+    "778449": {
+        "ground_truth": "post disco, pre aids.",
+        "prediction": "music from the post-disco era <eos>"
+    },
+    "778526": {
+        "ground_truth": "just like the fire that burns bread, listening to toast will leave you burning.",
+        "prediction": "energetic tunes to set your soul on fire <eos>"
+    },
+    "778572": {
+        "ground_truth": "slow country jams, catchy indie beats, and empowering pop hits -- featuring troye sivan, bea miller, florida georgia line, luke bryan, daya, sia, the chainsmokers, hoodie allen, tim mcgraw, hailee steinfeld, dierks bentley, and shawn mendes",
+        "prediction": "eclectic mix of country, indie, and pop hits <eos>"
+    },
+    "778578": {
+        "ground_truth": "in need of a chill pick me up? look no further",
+        "prediction": "mood-lifting tunes for any occasion <eos>"
+    },
+    "778893": {
+        "ground_truth": "a collection of christmas classics, along with some lesser-known tunes.",
+        "prediction": "timeless Christmas classics and hidden gems <eos>"
+    },
+    "778927": {
+        "ground_truth": "summer time bops for ya headtops!",
+        "prediction": "summer bangers to keep you grooving <eos>"
     }
-
-}
+ }

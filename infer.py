@@ -180,7 +180,7 @@ def main(args):
             "prediction": " ".join(gen_t)
         }
         counter += 1  # Increment the counter
-        if counter >= 5:  # Break the loop if counter is 5 or more
+        if counter >= 50:  # Break the loop if counter is 5 or more
             break
 
     with open(os.path.join(save_path, "inference.json"), mode="w", encoding='utf-8') as io:
