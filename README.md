@@ -32,14 +32,12 @@ python preprocess.py
 For best performance, use the following parameters for training:
 
 ```bash
-python train.py --dataset_type mpd --model transformer --shuffle True --e_pos False
+python train_model.py --dataset_type mpd --model transformer --shuffle True --e_pos False
 ```
 ## Evaluation and Inference
-To evaluate the model and perform inference, use the following commands:
+To generate playlist descriptions and perform inference, use the following command:
 ```bash
-python eval.py --dataset_type mpd --model transformer --shuffle True --e_pos False
-
-python infer.py --dataset_type mpd --model transformer --shuffle True --e_pos False
+python infer.py --shuffle True --e_pos False
 ```
 
 ## Acknowledgments
