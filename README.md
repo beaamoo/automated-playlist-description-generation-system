@@ -40,7 +40,7 @@ To generate playlist descriptions and perform inference, use the following comma
 python infer.py --shuffle True --e_pos False
 ```
 
-To evaluate the performance, use the follwing command
+To evaluate the performance, use the follwing command:
 ```bash
 python eval.py
 ```
