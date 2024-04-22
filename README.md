@@ -40,5 +40,10 @@ To generate playlist descriptions and perform inference, use the following comma
 python infer.py --shuffle True --e_pos False
 ```
 
+To evaluate the performance, use the follwing command
+```bash
+python eval.py
+```
+
 ## Acknowledgments
 This project is based on the work done in [ply_title_gen](https://github.com/seungheondoh/ply_title_gen.git).
